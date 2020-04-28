@@ -1,8 +1,8 @@
 #include "mbed.h"
 #include "wave_player.h"
 #include "SDFileSystem.h"
-#include "Motor.h"
-#include "RGBLed.h"
+//#include "Motor.h"
+//#include "RGBLed.h"
 #include "Servo.h"
 #include "ultrasonic.h"
 #include "uLCD_4DGL.h"
@@ -13,12 +13,20 @@
 int sonar_flag = 0; //1 = display distance, 0 = avoid colission
 float range = 0.0005; // for servo/motors calibration
 float position = 0.5; // for servo/motors calibration
+void dist(int distance);
+double x2;
+double y2;
+int x_c;
+int y_c;
+int r;
+int z;
 
 Serial pc(USBTX, USBRX);
 uLCD_4DGL uLCD(p13,p14,p11); // serial tx, serial rx, reset pin;
 ultrasonic mu(p15, p16, .1, 1, &dist); //sonar
 DigitalOut led1(p18);
 DigitalOut led2(p19);
+LSM9DS1 IMU(p9, p10, 0xD6, 0x3C);
 
 Servo dcmotorBottom(p21); // pwm
 Servo servoBottom(p22); // pwm
@@ -61,7 +69,7 @@ void dist(int distance)
     wait(2);
     } else { //avoid colision: beep and stop motor
         if(distance < 2){   
-        playSound("/sd/Beeping.wav")
+        playSound("/sd/Beeping.wav");
         dcmotorBack = 0.0;
         }
     }
@@ -126,15 +134,15 @@ void display_compass()
 int main()
 {   
     // this part of the display compass script only needs to be set up once
-    int x_c = 60;
-    int y_c = 60;
-    int r = 30;
+    x_c = 60;
+    y_c = 60;
+    r = 30;
     uLCD.circle(x_c, y_c, r, WHITE);
-    int z = 0;
-    double x2 = x_c + r*cos((double)z);
-    double y2 = x_c + r*sin((double)z);
+    z = 0;
+    x2 = x_c + r*cos((double)z);
+    y2 = x_c + r*sin((double)z);
     uLCD.line(x_c, y_c, (int)x2, (int)y2, BLUE);
-    LSM9DS1 IMU(p9, p10, 0xD6, 0x3C);
+    
     IMU.begin();
     if (!IMU.begin()) {
         pc.printf("Failed to communicate with LSM9DS1.\n");
@@ -145,7 +153,7 @@ int main()
     //calibrate motors
     dcmotorBack.calibrate(range, position);
     dcmotorBottom.calibrate(range, position);
-    servoBottom.calibrate(range, position)
+    servoBottom.calibrate(range, position);
     
     bottom_motor_on(); // bottom motor always on
     float servoAngle = 90.0; // ranges from 0 to 180 degrees where 90 is center
@@ -163,22 +171,17 @@ int main()
                 bnum = blue.getc(); //button number
                 bhit = blue.getc(); //1=hit, 0=release
                 if (blue.getc() == char(~('!' + 'B' + bnum + bhit))) { //checksum OK?
-                    myled = bnum - '1'; //current button number will appear on LEDs
                     switch (bnum) {
-                        case '1': //number button 1: speeds up motor
+                        case '1': //number button 1: not used currently
                             if (bhit=='1') {
                                 //add hit code here
-                                motorSpeed += 0.2; // speed up
-                                myRGBled.write(0.0,1.0,0.0); //green
                             } else {
                                 //add release code here
                             }
                             break;
-                        case '2': //number button 2: slows down motor
+                        case '2': //number button 2: not used currently
                             if (bhit=='1') {
                                 //add hit code here
-                                motorSpeed -= 0.2; // speed down
-                                myRGBled.write(0.0,0.0,1.0); //blue
                             } else {
                                 //add release code here
                             }
