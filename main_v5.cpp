@@ -32,7 +32,7 @@ DigitalOut myled2(LED2);
 DigitalOut myled3(LED3);
 DigitalOut myled4(LED4);
 DigitalOut exled1(p19);
-DigitalOut exled1(p26);
+DigitalOut exled2(p26);
 
 
 // Setup for IMU
